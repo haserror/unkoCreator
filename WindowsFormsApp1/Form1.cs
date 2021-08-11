@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -104,6 +105,14 @@ namespace WindowsFormsApp1
             if (neta.Length != 4)
             {
                 MessageBox.Show("ネタは4文字にしてね");
+                txtSeed.Focus();
+                return;
+            }
+
+            var set = new HashSet<char>(neta.ToCharArray());
+            if (set.Count != 4)
+            {
+                MessageBox.Show("ネタは全部違う文字にしてね");
                 txtSeed.Focus();
                 return;
             }
