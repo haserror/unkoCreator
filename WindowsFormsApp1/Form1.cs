@@ -5,11 +5,8 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        private const string WORD0 = "う";
-        private const string WORD1 = "ん";
-        private const string WORD2 = "こ";
-        private const string WORD3 = "ー";
-        
+        private const string DEFAULT_NETA = "うんこー";
+        private string[] word = { "", "", "", "" };
 
         public Form1()
         {
@@ -18,19 +15,38 @@ namespace WindowsFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            lblTitle.Text = "うんこ製造機";
-            btnEncrypt.Text = "うんこ→";
-            textBox1.Text = "うんこにしたい文字列を入力してね";
+            txtSeed.Text = DEFAULT_NETA;
+            ChangeNeta(DEFAULT_NETA);
         }
 
         private void BtnEncrypt_Click(object sender, EventArgs e)
         {
-            textBox2.Text = encrypt(textBox1.Text);
+            textBox2.Text = Encrypt(textBox1.Text);
+            textBox1.Text = "";
         }
 
         private void BtnDecrypt_Click(object sender, EventArgs e)
         {
-            textBox1.Text = decrypt(textBox2.Text);
+            string txt = textBox2.Text.Trim();
+
+            if (txt.Length % 8 != 0)
+            {
+                MessageBox.Show("テキスト不正で復元できなさそう");
+                return;
+            }
+
+            txt = txt.Replace(word[0], "");
+            txt = txt.Replace(word[1], "");
+            txt = txt.Replace(word[2], "");
+            txt = txt.Replace(word[3], "");
+            if (txt.Length != 0)
+            {
+                MessageBox.Show("テキスト不正で復元できなさそう");
+                return;
+            }
+
+            textBox1.Text = Decrypt(textBox2.Text);
+            textBox2.Text = "";
         }
 
         private void BtnAkita_Click(object sender, EventArgs e)
@@ -39,7 +55,7 @@ namespace WindowsFormsApp1
         }
 
 
-        private string encrypt(string s)
+        private string Encrypt(string s)
         {
             string rtn = "";
 
@@ -55,25 +71,25 @@ namespace WindowsFormsApp1
                 rtn += encoded;
             }
 
-            rtn = rtn.Replace("0", WORD0);
-            rtn = rtn.Replace("1", WORD1);
-            rtn = rtn.Replace("2", WORD2);
-            rtn = rtn.Replace("3", WORD3);
+            rtn = rtn.Replace("0", word[0]);
+            rtn = rtn.Replace("1", word[1]);
+            rtn = rtn.Replace("2", word[2]);
+            rtn = rtn.Replace("3", word[3]);
 
             return rtn;
         }
 
-        private string decrypt(string s)
+        private string Decrypt(string s)
         {
             string rtn = "";
 
             for (int i = 0; i < s.Length; i += 8)
             {
                 string val = s.Substring(i, 8);
-                val = val.Replace(WORD0, "0");
-                val = val.Replace(WORD1, "1");
-                val = val.Replace(WORD2, "2");
-                val = val.Replace(WORD3, "3");
+                val = val.Replace(word[0], "0");
+                val = val.Replace(word[1], "1");
+                val = val.Replace(word[2], "2");
+                val = val.Replace(word[3], "3");
 
                 int code = (int)RadixConvert.ToDecimal(val, 4);
                 rtn += (char)code;
@@ -82,5 +98,36 @@ namespace WindowsFormsApp1
             return rtn;
         }
 
+        private void TxtSeed_Leave(object sender, EventArgs e)
+        {
+            string neta = txtSeed.Text.Trim();
+            if (neta.Length != 4)
+            {
+                MessageBox.Show("ネタは4文字にしてね");
+                txtSeed.Focus();
+                return;
+            }
+
+            ChangeNeta(neta);
+        }
+
+        private void ChangeNeta(string neta)
+        {
+            word[0] = neta.Substring(0, 1);
+            word[1] = neta.Substring(1, 1);
+            word[2] = neta.Substring(2, 1);
+            word[3] = neta.Substring(3, 1);
+
+            string netaText = neta;
+            if (word[3] == "ー")
+            {
+                // 苦肉の策
+                netaText = neta.Replace("ー", "");
+            }
+
+            lblTitle.Text = netaText + "製造機";
+            btnEncrypt.Text = netaText + "製造→";
+            textBox1.Text = netaText + "にしたい文字列を入力してね";
+        }
     }
 }
